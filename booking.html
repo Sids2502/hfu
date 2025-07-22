@@ -108,16 +108,8 @@
                             <h4><i class="fas fa-tools"></i> Service Requirements</h4>
                             <div class="form-group">
                                 <label for="serviceType">Type of Service</label>
-                                <select id="serviceType" name="serviceType" required>
-                                    <option value="">Select service type</option>
-                                    <option value="pipe-repair">Pipe Repair</option>
-                                    <option value="bathroom-fitting">Bathroom Fitting</option>
-                                    <option value="water-heater">Water Heater Service</option>
-                                    <option value="drainage">Drainage Cleaning</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                                    <!-- Options populated by JavaScript -->
+                                <select id="serviceType" name="serviceType">
+                                    <!-- Options will be populated by JavaScript -->
                                 </select>
                             </div>
                             <div class="form-group">
@@ -277,7 +269,7 @@
             if (user) {
                 document.getElementById('contactName').value = user.name || '';
                 document.getElementById('contactPhone').value = user.phone || '';
-                document.getElementById('city').value = user.city || '';
+                document.getElementById('city').value = user.city || 'Kochi';
             }
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -286,34 +278,63 @@
 
             if (!professionalId || !serviceId) {
                 showNotification('Invalid professional or service selection', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
                 return;
             }
 
             // Fetch professional details
             try {
-                const professionals = await getProfessionals(serviceMapping[serviceId] || serviceId, user.city || 'kochi');
+                const serviceProvided = serviceMapping[serviceId] || serviceId;
+                const city = user.city || 'kochi';
+                const professionals = await getProfessionals(serviceProvided, city);
                 const professional = professionals.find(p => p.professional_id === professionalId);
+                
                 if (!professional) {
                     showNotification('Professional not found', 'error');
+                    setTimeout(() => {
+                        window.location.href = `service-list.html?service=${serviceId}&location=${city}`;
+                    }, 2000);
                     return;
                 }
 
                 const profData = transformProfessionalData(professional);
                 document.getElementById('professionalAvatar').textContent = getInitials(profData.name);
                 document.getElementById('professionalName').textContent = profData.name;
-                document.getElementById('serviceType').textContent = profData.specialties[0] || serviceId;
+                
+                // Update service type display
+                const serviceTypeElement = document.querySelector('#serviceType').parentElement.previousElementSibling.querySelector('p');
+                if (serviceTypeElement) {
+                    serviceTypeElement.textContent = profData.specialties[0] || serviceId;
+                }
+                
                 document.getElementById('ratingStars').textContent = '★'.repeat(Math.floor(profData.rating)) + '☆'.repeat(5 - Math.floor(profData.rating));
                 document.getElementById('ratingText').textContent = `${profData.rating.toFixed(1)} (${profData.reviews} reviews)`;
                 document.getElementById('hourlyRate').textContent = profData.hourlyRate;
                 document.getElementById('summaryProfessional').textContent = profData.name;
-                document.getElementById('summaryService').textContent = profData.specialties[0] || serviceId;
+                document.getElementById('summaryService').textContent = profData.specialties[0] || serviceMapping[serviceId] || serviceId;
                 document.getElementById('summaryCost').textContent = `₹${professional.hourly_rate} - ₹${professional.hourly_rate + 200}`;
 
                 // Populate service type dropdown
                 const serviceTypeSelect = document.getElementById('serviceType');
-                serviceTypeSelect.innerHTML = profData.specialties.map(s => `<option value="${s}">${s}</option>`).join('');
+                serviceTypeSelect.innerHTML = `
+                    <option value="">Select service type</option>
+                    ${profData.specialties.map(s => `<option value="${s}">${s}</option>`).join('')}
+                    <option value="other">Other</option>
+                `;
+                
+                // Set default selection
+                if (profData.specialties.length > 0) {
+                    serviceTypeSelect.value = profData.specialties[0];
+                }
+                
             } catch (error) {
+                console.error('Error loading professional details:', error);
                 showNotification('Error loading professional details', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
             }
 
             // Initialize form submission

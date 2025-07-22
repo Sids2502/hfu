@@ -134,17 +134,17 @@
         // Transform API booking data to match UI expectations
         function transformBookingData(apiBooking) {
             return {
-                id: apiBooking.booking_id,
-                service: apiBooking.service_type || 'Service',
+                id: apiBooking.booking_id || apiBooking.id,
+                service: apiBooking.service_type || apiBooking.service || 'Service',
                 serviceType: apiBooking.service_type || 'General Service',
                 professional: 'Professional', // API doesn't return professional name
-                date: new Date(apiBooking.booking_date).getDate().toString(),
-                time: apiBooking.booking_time,
-                status: apiBooking.booking_status === 'pending' ? 'upcoming' : apiBooking.booking_status,
-                address: apiBooking.full_address,
+                date: apiBooking.booking_date ? new Date(apiBooking.booking_date).getDate().toString() : apiBooking.date,
+                time: apiBooking.booking_time || apiBooking.time,
+                status: (apiBooking.booking_status === 'pending' || apiBooking.booking_status === 'confirmed') ? 'upcoming' : (apiBooking.booking_status || apiBooking.status),
+                address: apiBooking.full_address || apiBooking.address || 'Address not provided',
                 cost: '₹300-500', // Mock cost since not in API
                 paymentMethod: 'Cash After Service', // Mock payment method
-                createdAt: apiBooking.booking_date,
+                createdAt: apiBooking.booking_date || apiBooking.createdAt || new Date().toISOString(),
                 rating: null
             };
         }
@@ -152,11 +152,19 @@
         document.addEventListener('DOMContentLoaded', async function() {
             // Load bookings from API
             try {
-                const apiBookings = await getUserBookings();
+                let apiBookings = [];
+                try {
+                    apiBookings = await getUserBookings();
+                } catch (error) {
+                    console.log('API bookings not available, using local storage');
+                    apiBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+                }
                 allBookings = apiBookings.map(transformBookingData);
             } catch (error) {
                 console.error('Error loading bookings:', error);
-                allBookings = [];
+                // Fallback to localStorage
+                const localBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+                allBookings = localBookings.map(transformBookingData);
             }
             
             renderBookings();
