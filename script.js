@@ -302,6 +302,9 @@ async function renderProfessionals(serviceId) {
                     <p>No professionals available for this service in your area.</p>
                     <button class="btn-primary" onclick="window.location.href='become-helper.html'">
                         Become a Helper
+                    </button>
+                </div>
+            `;
 function viewProfile(professionalId, serviceId) {
     window.location.href = \`professional-profile.html?id=${professionalId}&service=${serviceId}`;
 }
