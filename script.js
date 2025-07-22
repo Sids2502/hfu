@@ -303,12 +303,12 @@ async function renderProfessionals(serviceId) {
                     <button class="btn-primary" onclick="window.location.href='become-helper.html'">
                         Become a Helper
 function viewProfile(professionalId, serviceId) {
-    window.location.href = `professional-profile.html?id=${professionalId}&service=${serviceId}`;
+    window.location.href = \`professional-profile.html?id=${professionalId}&service=${serviceId}`;
 }
 
 function bookNow(professionalId, serviceId) {
     if (!redirectToLogin()) return;
-    window.location.href = `booking.html?professional=${professionalId}&service=${serviceId}`;
+    window.location.href = \`booking.html?professional=${professionalId}&service=${serviceId}`;
 }
 
 // Fix missing functions for buttons  
@@ -330,7 +330,7 @@ function bookProfessional() {
     const professionalId = urlParams.get('id');
     const serviceId = urlParams.get('service');
     if (professionalId && serviceId) {
-        window.location.href = `booking.html?professional=${professionalId}&service=${serviceId}`;
+        window.location.href = \`booking.html?professional=${professionalId}&service=${serviceId}`;
     } else {
         showNotification('Missing booking information', 'error');
     }
@@ -365,7 +365,7 @@ async function handleBookingSubmission() {
     for (const field of requiredFields) {
         const value = formData.get(field) || document.getElementById(field)?.value;
         if (!value || !value.trim()) {
-            showNotification(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`, 'error');
+            showNotification(\`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`, 'error');
             document.getElementById(field)?.focus();
             return;
         }
@@ -373,7 +373,7 @@ async function handleBookingSubmission() {
     
     const bookingData = {
         professional_id: professionalId,
-        dates_and_times: [`${selectedDate.dataset.date}T${selectedTime.textContent}:00`],
+        dates_and_times: [\`${selectedDate.dataset.date}T${selectedTime.textContent}:00`],
         full_address: formData.get('address'),
         booking_date: selectedDate.dataset.date,
         booking_time: selectedTime.textContent,
@@ -411,7 +411,7 @@ async function handleBookingSubmission() {
         localStorage.setItem('userBookings', JSON.stringify(existingBookings));
         
         setTimeout(() => {
-            window.location.href = `booking-confirmation.html?id=${response.booking_id}`;
+            window.location.href = \`booking-confirmation.html?id=${response.booking_id}`;
         }, 1500);
         
     } catch (error) {
@@ -445,6 +445,7 @@ function renderTimeSlots(date) {
     ];
     
     timeSlotsContainer.innerHTML = `
+        }
         <h4>Available Time Slots</h4>
         <div class="time-slots">
             ${timeSlots.map(time => `
@@ -453,6 +454,7 @@ function renderTimeSlots(date) {
                 </div>
             `).join('')}
         </div>
+    }
     `;
 }
 
@@ -487,7 +489,7 @@ function confirmBooking() {
     localStorage.setItem('userBookings', JSON.stringify(existingBookings));
     
     showNotification('Booking confirmed successfully!');
-    window.location.href = `booking-confirmation.html?id=${bookingData.id}`;
+    window.location.href = \`booking-confirmation.html?id=${bookingData.id}`;
 }
 
 // Form Validation Functions
@@ -630,7 +632,7 @@ function chatWithProfessional() {
 function bookProfessional() {
     if (!redirectToLogin()) return;
     const urlParams = new URLSearchParams(window.location.search);
-    window.location.href = `booking.html?professional=${urlParams.get('id')}&service=${urlParams.get('service')}`;
+    window.location.href = \`booking.html?professional=${urlParams.get('id')}&service=${urlParams.get('service')}`;
 }
 
 function initializeBooking() {
@@ -644,7 +646,7 @@ function initializeDashboard() {
         return;
     }
     
-    document.getElementById('userWelcome').textContent = `Welcome back, ${user.name}!`;
+    document.getElementById('userWelcome').textContent = \`Welcome back, ${user.name}!`;
     renderDashboardServices();
     renderRecentBookings();
 }
@@ -798,7 +800,7 @@ async function initializeDashboard() {
         return;
     }
     
-    document.getElementById('userWelcome').textContent = `Welcome back, ${user.name}!`;
+    document.getElementById('userWelcome').textContent = \`Welcome back, ${user.name}!`;
     renderDashboardServices();
     await renderRecentBookings();
 }
@@ -878,7 +880,7 @@ function searchServices() {
         );
         
         if (matchedService) {
-            window.location.href = `service-list.html?service=${matchedService.id}&location=${encodeURIComponent(locationQuery)}`;
+            window.location.href = \`service-list.html?service=${matchedService.id}&location=${encodeURIComponent(locationQuery)}`;
         } else {
             showNotification('Service not found. Please try a different search term.', 'error');
         }
@@ -981,7 +983,7 @@ function showNotification(message, type = 'success') {
     existingNotifications.forEach(notification => notification.remove());
     
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = \`notification ${type}`;
     notification.innerHTML = `
         <div class="notification-content">
             <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
@@ -1025,3 +1027,4 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
 });
+}
